@@ -1,0 +1,157 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  role         String   @default("member")
+  avatarUrl    String?
+  jobTitle     String?
+  department   String?
+  address      String?
+  isActive     Boolean  @default(true)
+  notifyEmail  Boolean  @default(true)
+  notifyInApp  Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  assignments     ProjectAssignment[]
+  activityEvents  ActivityEvent[]
+  attendance      AttendanceRecord[]
+  productivity    ProductivityMetric[]
+  createdProjects Project[]            @relation("ProjectCreatedBy")
+}
+
+model Client {
+  id        String   @id @default(cuid())
+  name      String
+  company   String?
+  email     String?
+  phone     String?
+  address   String?
+  logoColor String?
+  status    String   @default("active")
+  createdAt DateTime @default(now())
+
+  projects Project[]
+}
+
+model Project {
+  id             String    @id @default(cuid())
+  title          String
+  description    String?
+  clientId       String?
+  client         Client?   @relation(fields: [clientId], references: [id])
+  priority       String    @default("medium")
+  status         String    @default("not_started")
+  dueDate        DateTime?
+  estimatedHours Float?
+  notes          String?
+  createdById    String
+  createdBy      User      @relation("ProjectCreatedBy", fields: [createdById], references: [id])
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  assignments ProjectAssignment[]
+  tags        ProjectTag[]
+  attachments Attachment[]
+}
+
+model ProjectAssignment {
+  id         String   @id @default(cuid())
+  projectId  String
+  userId     String
+  project    Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [userId], references: [id])
+  assignedAt DateTime @default(now())
+
+  @@unique([projectId, userId])
+}
+
+model Tag {
+  id   String @id @default(cuid())
+  name String @unique
+
+  projects ProjectTag[]
+}
+
+model ProjectTag {
+  projectId String
+  tagId     String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  tag       Tag     @relation(fields: [tagId], references: [id])
+
+  @@id([projectId, tagId])
+}
+
+model Attachment {
+  id         String   @id @default(cuid())
+  projectId  String
+  project    Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  fileName   String
+  storedName String
+  mimeType   String
+  sizeBytes  Int
+  uploadedAt DateTime @default(now())
+}
+
+model Credential {
+  id        String   @id @default(cuid())
+  toolName  String
+  username  String
+  secretEnc String
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model AttendanceRecord {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  date        DateTime
+  status      String
+  checkIn     String?
+  checkOut    String?
+  hoursLogged Float?
+
+  @@unique([userId, date])
+}
+
+model ProductivityMetric {
+  id                String   @id @default(cuid())
+  userId            String
+  user              User     @relation(fields: [userId], references: [id])
+  date              DateTime
+  tasksCompleted    Int      @default(0)
+  hoursLogged       Float    @default(0)
+  focusScore        Int      @default(0)
+  productivityScore Int      @default(0)
+
+  @@unique([userId, date])
+}
+
+model ActivityEvent {
+  id         String   @id @default(cuid())
+  userId     String?
+  user       User?    @relation(fields: [userId], references: [id])
+  type       String
+  message    String
+  entityType String?
+  entityId   String?
+  createdAt  DateTime @default(now())
+}
+
+model OrgSettings {
+  id        String   @id @default(cuid())
+  plan      String   @default("free")
+  updatedAt DateTime @updatedAt
+}

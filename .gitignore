@@ -1,0 +1,14 @@
+node_modules/
+dist/
+build/
+.env
+.env.local
+apps/api/.env
+apps/web/.env
+apps/api/prisma/dev.db
+apps/api/prisma/dev.db-journal
+apps/api/uploads/
+!apps/api/uploads/.gitkeep
+.DS_Store
+*.log
+.vite/
