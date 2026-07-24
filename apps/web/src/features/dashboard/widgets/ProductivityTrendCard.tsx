@@ -6,6 +6,17 @@ import { useChartColors } from "@/lib/chartTheme";
 import { useProductivityTrend } from "../api";
 import { ChartTooltip } from "../ChartTooltip";
 
+const safeFormatDate = (dateStr: string, fmt = "MMM d") => {
+  try {
+    if (!dateStr) return "";
+    const parsed = parseISO(dateStr);
+    if (isNaN(parsed.getTime())) return dateStr;
+    return format(parsed, fmt);
+  } catch {
+    return dateStr || "";
+  }
+};
+
 export function ProductivityTrendCard() {
   const { data, isLoading } = useProductivityTrend("30d");
   const colors = useChartColors();
@@ -30,7 +41,7 @@ export function ProductivityTrendCard() {
           <Skeleton className="h-64 w-full" />
         ) : (
           <ResponsiveContainer width="100%" height={260}>
-            <AreaChart data={data} margin={{ left: -16, right: 8, top: 8 }}>
+            <AreaChart data={safeData} margin={{ left: -16, right: 8, top: 8 }}>
               <defs>
                 <linearGradient id="productivityFill" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="0%" stopColor={colors.brand} stopOpacity={0.25} />
@@ -40,7 +51,7 @@ export function ProductivityTrendCard() {
               <CartesianGrid stroke={colors.grid} vertical={false} />
               <XAxis
                 dataKey="date"
-                tickFormatter={(d) => format(parseISO(d), "MMM d")}
+                tickFormatter={(d) => safeFormatDate(d, "MMM d")}
                 tick={{ fill: colors.text, fontSize: 11 }}
                 axisLine={{ stroke: colors.grid }}
                 tickLine={false}
@@ -59,7 +70,7 @@ export function ProductivityTrendCard() {
                     formatter={(value, name) =>
                       name === "avgProductivity" ? [`${value}`, "Avg. productivity"] : [`${value}`, name]
                     }
-                    labelFormatter={(label) => format(parseISO(label), "MMM d, yyyy")}
+                    labelFormatter={(label) => safeFormatDate(label, "MMM d, yyyy")}
                   />
                 }
               />

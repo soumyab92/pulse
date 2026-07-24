@@ -14,9 +14,22 @@ const SERIES: { key: "present" | "remote" | "late" | "leave" | "absent"; label: 
   { key: "absent", label: "Absent" },
 ];
 
+const safeFormatDate = (dateStr: string, fmt = "MMM d") => {
+  try {
+    if (!dateStr) return "";
+    const parsed = parseISO(dateStr);
+    if (isNaN(parsed.getTime())) return dateStr;
+    return format(parsed, fmt);
+  } catch {
+    return dateStr || "";
+  }
+};
+
 export function AttendanceTrendCard() {
   const { data, isLoading } = useAttendanceTrend("30d");
   const colors = useChartColors();
+
+  const safeData = Array.isArray(data) ? data : [];
 
   return (
     <Card>
@@ -31,18 +44,18 @@ export function AttendanceTrendCard() {
           <Skeleton className="h-64 w-full" />
         ) : (
           <ResponsiveContainer width="100%" height={260}>
-            <AreaChart data={data} margin={{ left: -16, right: 8, top: 8 }}>
+            <AreaChart data={safeData} margin={{ left: -16, right: 8, top: 8 }}>
               <CartesianGrid stroke={colors.grid} vertical={false} />
               <XAxis
                 dataKey="date"
-                tickFormatter={(d) => format(parseISO(d), "MMM d")}
+                tickFormatter={(d) => safeFormatDate(d, "MMM d")}
                 tick={{ fill: colors.text, fontSize: 11 }}
                 axisLine={{ stroke: colors.grid }}
                 tickLine={false}
                 minTickGap={32}
               />
               <YAxis allowDecimals={false} tick={{ fill: colors.text, fontSize: 11 }} axisLine={false} tickLine={false} width={28} />
-              <Tooltip content={<ChartTooltip labelFormatter={(l) => format(parseISO(l), "MMM d, yyyy")} />} />
+              <Tooltip content={<ChartTooltip labelFormatter={(l) => safeFormatDate(l, "MMM d, yyyy")} />} />
               <Legend
                 iconType="circle"
                 iconSize={8}
