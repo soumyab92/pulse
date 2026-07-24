@@ -10,7 +10,8 @@ export function ProductivityTrendCard() {
   const { data, isLoading } = useProductivityTrend("30d");
   const colors = useChartColors();
 
-  const totalTasks = data?.reduce((sum, d) => sum + d.tasksCompleted, 0) ?? 0;
+  const safeData = Array.isArray(data) ? data : [];
+  const totalTasks = safeData.reduce((sum, d) => sum + (d?.tasksCompleted ?? 0), 0);
 
   return (
     <Card>

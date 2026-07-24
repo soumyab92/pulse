@@ -16,11 +16,12 @@ export function TaskProgressCard() {
   const { data, isLoading } = useProjectOverview();
   const colors = useChartColors();
 
-  const total = data?.byStatus.reduce((sum, s) => sum + s.count, 0) ?? 0;
-  const completed = data?.byStatus.find((s) => s.status === "completed")?.count ?? 0;
+  const byStatus = Array.isArray(data?.byStatus) ? data.byStatus : [];
+  const total = byStatus.reduce((sum, s) => sum + (s?.count ?? 0), 0);
+  const completed = byStatus.find((s) => s.status === "completed")?.count ?? 0;
   const percentComplete = total > 0 ? Math.round((completed / total) * 100) : 0;
 
-  const countFor = (status: string) => data?.byStatus.find((s) => s.status === status)?.count ?? 0;
+  const countFor = (status: string) => byStatus.find((s) => s.status === status)?.count ?? 0;
 
   return (
     <Card>

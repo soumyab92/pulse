@@ -24,7 +24,7 @@ export function ProjectOverviewCard() {
               <Skeleton key={i} className="h-10 w-full" />
             ))}
           </div>
-        ) : data.upcoming.length > 0 ? (
+        ) : Array.isArray(data?.upcoming) && data.upcoming.length > 0 ? (
           <ul className="divide-y divide-border">
             {data.upcoming.map((p) => (
               <li key={p.id} className="flex items-center gap-3 py-2.5 first:pt-0 last:pb-0">
