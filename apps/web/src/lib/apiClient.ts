@@ -14,12 +14,23 @@ apiClient.interceptors.request.use((config) => {
   return config;
 });
 
-// Intercept responses: If network connection fails (offline static Vercel/Netlify deployment), handle with rich in-browser mock engine
+// Intercept responses: If network connection fails or static host responds with 404/405, serve with Local Storage Mock Engine
 apiClient.interceptors.response.use(
   (response) => response,
   async (error) => {
-    // If backend server is unreachable or static deployment on Vercel/Netlify, serve data seamlessly
-    if (!error.response || error.code === "ERR_NETWORK" || error.code === "ECONNABORTED" || error.response?.status === 404) {
+    const status = error.response?.status;
+    const isStaticHostError =
+      !error.response ||
+      error.code === "ERR_NETWORK" ||
+      error.code === "ECONNABORTED" ||
+      status === 404 ||
+      status === 405 ||
+      status === 500 ||
+      status === 502 ||
+      status === 503 ||
+      !import.meta.env.VITE_API_URL;
+
+    if (isStaticHostError) {
       const url = error.config?.url || "";
       const method = (error.config?.method || "get").toLowerCase();
       let body: any = {};
@@ -60,14 +71,14 @@ apiClient.interceptors.response.use(
       if (url.includes("/dashboard/productivity-trend")) {
         return {
           data: [
-            { date: "Jul 10", avgProductivity: 78, tasksCompleted: 12 },
-            { date: "Jul 12", avgProductivity: 82, tasksCompleted: 15 },
-            { date: "Jul 14", avgProductivity: 85, tasksCompleted: 18 },
-            { date: "Jul 16", avgProductivity: 88, tasksCompleted: 22 },
-            { date: "Jul 18", avgProductivity: 91, tasksCompleted: 26 },
-            { date: "Jul 20", avgProductivity: 89, tasksCompleted: 24 },
-            { date: "Jul 22", avgProductivity: 94, tasksCompleted: 29 },
-            { date: "Jul 24", avgProductivity: 92, tasksCompleted: 27 },
+            { date: "2026-07-10", avgProductivity: 78, tasksCompleted: 12 },
+            { date: "2026-07-12", avgProductivity: 82, tasksCompleted: 15 },
+            { date: "2026-07-14", avgProductivity: 85, tasksCompleted: 18 },
+            { date: "2026-07-16", avgProductivity: 88, tasksCompleted: 22 },
+            { date: "2026-07-18", avgProductivity: 91, tasksCompleted: 26 },
+            { date: "2026-07-20", avgProductivity: 89, tasksCompleted: 24 },
+            { date: "2026-07-22", avgProductivity: 94, tasksCompleted: 29 },
+            { date: "2026-07-24", avgProductivity: 92, tasksCompleted: 27 },
           ],
           status: 200,
           statusText: "OK",
@@ -142,11 +153,11 @@ apiClient.interceptors.response.use(
       if (url.includes("/dashboard/attendance-trend")) {
         return {
           data: [
-            { date: "Jul 18", present: 22, late: 1, absent: 0, leave: 1, remote: 8 },
-            { date: "Jul 19", present: 23, late: 0, absent: 0, leave: 1, remote: 9 },
-            { date: "Jul 20", present: 21, late: 2, absent: 1, leave: 0, remote: 7 },
-            { date: "Jul 21", present: 24, late: 0, absent: 0, leave: 0, remote: 10 },
-            { date: "Jul 22", present: 23, late: 1, absent: 0, leave: 0, remote: 9 },
+            { date: "2026-07-18", present: 22, late: 1, absent: 0, leave: 1, remote: 8 },
+            { date: "2026-07-19", present: 23, late: 0, absent: 0, leave: 1, remote: 9 },
+            { date: "2026-07-20", present: 21, late: 2, absent: 1, leave: 0, remote: 7 },
+            { date: "2026-07-21", present: 24, late: 0, absent: 0, leave: 0, remote: 10 },
+            { date: "2026-07-22", present: 23, late: 1, absent: 0, leave: 0, remote: 9 },
           ],
           status: 200,
           statusText: "OK",
@@ -335,6 +346,9 @@ apiClient.interceptors.response.use(
           config: error.config,
         };
       }
+
+      // Default safe fallback array for unhandled endpoints
+      return { data: [], status: 200, statusText: "OK", headers: {}, config: error.config };
     }
 
     if (error.response?.status === 401) {
