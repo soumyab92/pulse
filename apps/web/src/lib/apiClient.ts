@@ -27,6 +27,28 @@ function handleMockRequest(config: InternalAxiosRequestConfig) {
     ];
   }
 
+  // Profile
+  if (url.includes("/profile")) {
+    const currentUser = useAuthStore.getState().user || {
+      id: "usr-demo",
+      name: "Alex Morgan",
+      email: "alex@company.com",
+      role: "super_admin",
+      avatarUrl: null,
+      jobTitle: "VP of Engineering",
+      department: "Engineering",
+      address: "123 Tech Blvd, San Francisco, CA",
+      notifyEmail: true,
+      notifyInApp: true,
+    };
+    if (method === "patch") {
+      const updated = { ...currentUser, ...body };
+      useAuthStore.getState().updateUser(updated);
+      return updated;
+    }
+    return currentUser;
+  }
+
   // Settings / Plan
   if (url.includes("/settings/plan")) {
     if (method === "get") return localStorageDb.getPlan();
