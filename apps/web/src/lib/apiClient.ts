@@ -17,6 +17,16 @@ function handleMockRequest(config: InternalAxiosRequestConfig) {
     body = {};
   }
 
+  // Tags
+  if (url.includes("/tags")) {
+    return [
+      { id: "tag-1", name: "frontend" },
+      { id: "tag-2", name: "backend" },
+      { id: "tag-3", name: "ai" },
+      { id: "tag-4", name: "devops" },
+    ];
+  }
+
   // Settings / Plan
   if (url.includes("/settings/plan")) {
     if (method === "get") return localStorageDb.getPlan();
@@ -161,7 +171,16 @@ function handleMockRequest(config: InternalAxiosRequestConfig) {
 
   // Projects
   if (url.includes("/projects")) {
-    if (method === "get") return { projects: localStorageDb.getProjects(), total: localStorageDb.getProjects().length };
+    const projects = localStorageDb.getProjects();
+    if (method === "get") {
+      return {
+        items: projects,
+        total: projects.length,
+        page: 1,
+        pageSize: 50,
+        totalPages: 1,
+      };
+    }
     if (method === "post") return localStorageDb.addProject(body);
     if (method === "patch") {
       const id = url.split("/projects/")[1];
@@ -176,7 +195,8 @@ function handleMockRequest(config: InternalAxiosRequestConfig) {
 
   // Clients
   if (url.includes("/clients")) {
-    if (method === "get") return { clients: localStorageDb.getClients(), total: localStorageDb.getClients().length };
+    const clients = localStorageDb.getClients();
+    if (method === "get") return clients;
     if (method === "post") return localStorageDb.addClient(body);
     if (method === "patch") {
       const id = url.split("/clients/")[1];
