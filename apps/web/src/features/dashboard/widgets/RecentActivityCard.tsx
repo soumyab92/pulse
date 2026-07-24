@@ -24,7 +24,7 @@ export function RecentActivityCard() {
               <Skeleton key={i} className="h-10 w-full" />
             ))}
           </div>
-        ) : data && data.length > 0 ? (
+        ) : Array.isArray(data) && data.length > 0 ? (
           <ul className="space-y-4">
             {data.map((event) => (
               <li key={event.id} className="flex items-start gap-3">

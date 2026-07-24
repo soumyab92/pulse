@@ -9,7 +9,9 @@ export function TeamComparisonCard() {
   const { data, isLoading } = useTeamComparison();
   const colors = useChartColors();
 
-  const top = (data ?? []).slice(0, 8).map((row) => ({ ...row, shortName: row.name.split(" ")[0] + " " + (row.name.split(" ")[1]?.[0] ?? "") + "." }));
+  const top = (Array.isArray(data) ? data : [])
+    .slice(0, 8)
+    .map((row) => ({ ...row, shortName: (row.name ?? "Dev").split(" ")[0] + " " + ((row.name ?? "").split(" ")[1]?.[0] ?? "") + "." }));
 
   return (
     <Card>

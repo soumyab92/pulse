@@ -155,6 +155,20 @@ apiClient.interceptors.response.use(
         };
       }
 
+      if (url.includes("/dashboard/activity-feed")) {
+        return {
+          data: [
+            { id: "act-1", type: "pr_merged", message: "merged PR #142 'Microservices refactor'", createdAt: new Date().toISOString(), user: { name: "Alex Morgan", avatarUrl: null } },
+            { id: "act-2", type: "project_created", message: "created new project 'AI Customer Support Bot'", createdAt: new Date(Date.now() - 3600000).toISOString(), user: { name: "David Kim", avatarUrl: null } },
+            { id: "act-3", type: "client_added", message: "onboarded new enterprise client 'Acme Corp'", createdAt: new Date(Date.now() - 7200000).toISOString(), user: { name: "Elena Rostova", avatarUrl: null } },
+          ],
+          status: 200,
+          statusText: "OK",
+          headers: {},
+          config: error.config,
+        };
+      }
+
       if (url.includes("/dashboard/ai-insights")) {
         return {
           data: [

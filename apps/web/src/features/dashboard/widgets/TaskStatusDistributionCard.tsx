@@ -17,8 +17,9 @@ export function TaskStatusDistributionCard() {
   const { data, isLoading } = useTaskStatusDistribution();
   const colors = useChartColors();
 
-  const total = (data ?? []).reduce((sum, d) => sum + d.count, 0);
-  const chartData = (data ?? []).map((d) => ({
+  const safeData = Array.isArray(data) ? data : [];
+  const total = safeData.reduce((sum, d) => sum + (d?.count ?? 0), 0);
+  const chartData = safeData.map((d) => ({
     ...d,
     label: STATUS_LABEL[d.status] ?? d.status,
     color: colors.projectStatus[d.status] ?? colors.status.neutral,

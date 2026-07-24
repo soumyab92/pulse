@@ -25,7 +25,7 @@ export function AiInsightsCard() {
         {isLoading ? (
           Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-14 w-full" />)
         ) : (
-          data?.map((insight) => {
+          (Array.isArray(data) ? data : []).map((insight) => {
             const tone = TONE_STYLES[insight.tone];
             const Icon = tone.icon;
             return (

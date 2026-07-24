@@ -9,11 +9,11 @@ export function WorkloadDistributionCard() {
   const { data, isLoading } = useWorkloadDistribution();
   const colors = useChartColors();
 
-  const top = (data ?? [])
+  const top = (Array.isArray(data) ? data : [])
     .slice()
     .sort((a, b) => b.activeProjects - a.activeProjects)
     .slice(0, 8)
-    .map((row) => ({ ...row, shortName: row.name.split(" ")[0] }));
+    .map((row) => ({ ...row, shortName: row.name ? row.name.split(" ")[0] : "Dev" }));
 
   return (
     <Card>
