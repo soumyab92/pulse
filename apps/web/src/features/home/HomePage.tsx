@@ -33,6 +33,54 @@ import { CustomCursor } from "@/components/ui/CustomCursor";
 import { useUiStore } from "@/stores/uiStore";
 import { useAuthStore } from "@/stores/authStore";
 
+function TypewriterEffect({ words }: { words: string[] }) {
+  const [index, setIndex] = useState(0);
+  const [subIndex, setSubIndex] = useState(0);
+  const [reverse, setReverse] = useState(false);
+  const [blink, setBlink] = useState(true);
+
+  useEffect(() => {
+    const timeout = setInterval(() => {
+      setBlink((prev) => !prev);
+    }, 500);
+    return () => clearInterval(timeout);
+  }, []);
+
+  useEffect(() => {
+    if (subIndex === words[index].length + 1 && !reverse) {
+      const timeout = setTimeout(() => {
+        setReverse(true);
+      }, 1800);
+      return () => clearTimeout(timeout);
+    }
+
+    if (subIndex === 0 && reverse) {
+      setReverse(false);
+      setIndex((prev) => (prev + 1) % words.length);
+      return;
+    }
+
+    const timeout = setTimeout(() => {
+      setSubIndex((prev) => prev + (reverse ? -1 : 1));
+    }, reverse ? 45 : 90);
+
+    return () => clearTimeout(timeout);
+  }, [subIndex, index, reverse, words]);
+
+  return (
+    <span className="inline-block relative">
+      <span className="bg-gradient-to-r from-brand-600 via-indigo-500 to-brand-500 bg-clip-text text-transparent pb-1">
+        {words[index].substring(0, subIndex)}
+      </span>
+      <span
+        className={`ml-1 inline-block w-[3px] sm:w-[4px] h-[0.72em] bg-brand-500 ${
+          blink ? "opacity-100" : "opacity-0"
+        } transition-opacity duration-150 rounded-full align-baseline translate-y-[0.05em]`}
+      />
+    </span>
+  );
+}
+
 export function HomePage() {
   const navigate = useNavigate();
   const toggleTheme = useUiStore((s) => s.toggleTheme);
@@ -279,8 +327,9 @@ export function HomePage() {
               Next-Gen Engineering Intelligence Platform
             </div>
 
-            <h1 className="text-3xl font-extrabold tracking-tight text-text-primary sm:text-6xl lg:text-7xl">
-              Supercharge Engineering Velocity with <span className="bg-gradient-to-r from-brand-600 via-indigo-500 to-brand-500 bg-clip-text text-transparent">Pulse</span>
+            <h1 className="text-3xl font-extrabold tracking-tight text-text-primary leading-[1.25] sm:text-6xl sm:leading-[1.15] lg:text-7xl lg:leading-[1.12]">
+              Supercharge Engineering Velocity with{" "}
+              <TypewriterEffect words={["Pulse", "Real-Time AI", "Actionable Insights", "Automated Flow"]} />
             </h1>
 
             <p className="mx-auto mt-6 max-w-2xl text-sm text-text-secondary sm:text-lg lg:text-xl">
